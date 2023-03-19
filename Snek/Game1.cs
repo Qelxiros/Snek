@@ -81,11 +81,11 @@ public class Game1 : Game {
         #endregion
 
         _score = 0;
-        _speedMultiplier = 0.98F;
+        _speedMultiplier = 0.95F;
         _snekColor = Color.LimeGreen;
         _foodColor = Color.Red;
         _framesSinceLastMove = 0;
-        _framesPerMove = 15;
+        _framesPerMove = 10;
         _headingChangedSinceLastMove = false;
         _concurrentFoods = 1;
         _gridSquareSize = 70;
