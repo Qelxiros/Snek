@@ -2,8 +2,10 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using Devcade;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 
@@ -43,6 +45,11 @@ public class Game1 : Game {
     private SpriteBatch _spriteBatch;
     private Texture2D _upCell;
     private Rectangle _windowSize;
+    private SoundEffect _eatApple0;
+    private SoundEffect _eatApple1;
+    private SoundEffect _eatEasterEgg;
+    private SoundEffect _eatShit;
+    private static readonly Random RNG = new();
 
     /// <summary>
     ///     Game constructor
@@ -95,7 +102,9 @@ public class Game1 : Game {
         _snek.AddFirst(new Vector2(0, 3));
         _heading = Heading.Down;
         _food = new Vector2[_concurrentFoods];
-        for (var i = 0; i < _concurrentFoods; i++) CreateFood(i);
+        for (int i = 0; i < _concurrentFoods; i++) {
+            CreateFood(i);
+        }
 
         base.Initialize();
     }
@@ -108,56 +117,73 @@ public class Game1 : Game {
         _scoreFont = Content.Load<SpriteFont>("score");
         _scoreFontSize = _scoreFont.MeasureString("0"); // the font is monospace so this works
 
-        var data = new Color[_gridSquareSize * _gridSquareSize];
+        Color[] data = new Color[_gridSquareSize * _gridSquareSize];
 
         _directionlessCell = new Texture2D(GraphicsDevice, _gridSquareSize, _gridSquareSize);
-        for (var i = 0; i < _gridSquareSize * _gridSquareSize; i++)
-            if (i > 630 && i < 4200 && i % _gridSquareSize >= 10 && i % _gridSquareSize < 60)
+        for (int i = 0; i < _gridSquareSize * _gridSquareSize; i++) {
+            if (i > 630 && i < 4200 && i % _gridSquareSize >= 10 && i % _gridSquareSize < 60) {
                 data[i] = _snekColor;
+            }
+        }
 
         _directionlessCell.SetData(data);
 
         _rightCell = new Texture2D(GraphicsDevice, _gridSquareSize, _gridSquareSize);
         data = new Color[_gridSquareSize * _gridSquareSize];
-        for (var i = 0; i < _gridSquareSize * _gridSquareSize; i++)
-            if (i > 630 && i < 4200 && i % _gridSquareSize >= 60)
+        for (int i = 0; i < _gridSquareSize * _gridSquareSize; i++) {
+            if (i >= 630 && i <= 4200 && i % _gridSquareSize >= 60) {
                 data[i] = _snekColor;
+            }
+        }
 
         _rightCell.SetData(data);
 
         _leftCell = new Texture2D(GraphicsDevice, _gridSquareSize, _gridSquareSize);
         data = new Color[_gridSquareSize * _gridSquareSize];
-        for (var i = 0; i < _gridSquareSize * _gridSquareSize; i++)
-            if (i > 630 && i < 4200 && i % _gridSquareSize <= 10)
+        for (int i = 0; i < _gridSquareSize * _gridSquareSize; i++) {
+            if (i >= 630 && i < 4200 && i % _gridSquareSize <= 10) {
                 data[i] = _snekColor;
+            }
+        }
 
         _leftCell.SetData(data);
 
         _upCell = new Texture2D(GraphicsDevice, _gridSquareSize, _gridSquareSize);
         data = new Color[_gridSquareSize * _gridSquareSize];
-        for (var i = 0; i < _gridSquareSize * _gridSquareSize; i++)
-            if (i < 4200 && i % _gridSquareSize >= 10 && i % _gridSquareSize < 60)
+        for (int i = 0; i < _gridSquareSize * _gridSquareSize; i++) {
+            if (i < 4200 && i % _gridSquareSize >= 10 && i % _gridSquareSize < 60) {
                 data[i] = _snekColor;
+            }
+        }
 
         _upCell.SetData(data);
 
         _downCell = new Texture2D(GraphicsDevice, _gridSquareSize, _gridSquareSize);
         data = new Color[_gridSquareSize * _gridSquareSize];
-        for (var i = 0; i < _gridSquareSize * _gridSquareSize; i++)
-            if (i > 630 && i % _gridSquareSize >= 10 && i % _gridSquareSize < 60)
+        for (int i = 0; i < _gridSquareSize * _gridSquareSize; i++) {
+            if (i > 630 && i % _gridSquareSize >= 10 && i % _gridSquareSize < 60) {
                 data[i] = _snekColor;
+            }
+        }
 
         _downCell.SetData(data);
 
         data = new Color[_gridSquareSize * _gridSquareSize];
         _foodCell = new Texture2D(GraphicsDevice, _gridSquareSize, _gridSquareSize);
-        for (var i = 0; i < _gridSquareSize * _gridSquareSize; i++) {
-            var x = i % _gridSquareSize - _gridSquareSize / 2;
-            var y = i / _gridSquareSize - _gridSquareSize / 2;
-            if (x * x + y * y <= _gridSquareSize * 0.2 * (_gridSquareSize * 0.2)) data[i] = _foodColor;
+        for (int i = 0; i < _gridSquareSize * _gridSquareSize; i++) {
+            int x = i % _gridSquareSize - _gridSquareSize / 2;
+            int y = i / _gridSquareSize - _gridSquareSize / 2;
+            if (x * x + y * y < _gridSquareSize * 0.2 * (_gridSquareSize * 0.2)) {
+                data[i] = _foodColor;
+            }
         }
 
         _foodCell.SetData(data);
+
+        _eatApple0 = Content.Load<SoundEffect>("apple0");
+        _eatApple1 = Content.Load<SoundEffect>("apple1");
+        _eatShit = Content.Load<SoundEffect>("eatShit");
+        _eatEasterEgg = Content.Load<SoundEffect>("eatEasterEgg");
     }
 
     /// <summary>
@@ -172,8 +198,9 @@ public class Game1 : Game {
         // buttons at once for gracefull exit.
         if (Keyboard.GetState().IsKeyDown(Keys.Escape) ||
             (Input.GetButton(1, Input.ArcadeButtons.Menu) &&
-             Input.GetButton(2, Input.ArcadeButtons.Menu)))
+             Input.GetButton(2, Input.ArcadeButtons.Menu))) {
             Exit();
+        }
 
         if ((Keyboard.GetState().IsKeyDown(Keys.Up) || Input.GetButton(1, Input.ArcadeButtons.StickUp) ||
              Input.GetButton(2, Input.ArcadeButtons.StickUp)) &&
@@ -181,22 +208,19 @@ public class Game1 : Game {
             !_headingChangedSinceLastMove) {
             _heading = Heading.Up;
             _headingChangedSinceLastMove = true;
-        }
-        else if ((Keyboard.GetState().IsKeyDown(Keys.Down) || Input.GetButton(1, Input.ArcadeButtons.StickDown) ||
-                  Input.GetButton(2, Input.ArcadeButtons.StickDown)) &&
-                 (_heading == Heading.Left || _heading == Heading.Right) && !_headingChangedSinceLastMove) {
+        } else if ((Keyboard.GetState().IsKeyDown(Keys.Down) || Input.GetButton(1, Input.ArcadeButtons.StickDown) ||
+                    Input.GetButton(2, Input.ArcadeButtons.StickDown)) &&
+                   (_heading == Heading.Left || _heading == Heading.Right) && !_headingChangedSinceLastMove) {
             _heading = Heading.Down;
             _headingChangedSinceLastMove = true;
-        }
-        else if ((Keyboard.GetState().IsKeyDown(Keys.Left) || Input.GetButton(1, Input.ArcadeButtons.StickLeft) ||
-                  Input.GetButton(2, Input.ArcadeButtons.StickLeft)) &&
-                 (_heading == Heading.Up || _heading == Heading.Down) && !_headingChangedSinceLastMove) {
+        } else if ((Keyboard.GetState().IsKeyDown(Keys.Left) || Input.GetButton(1, Input.ArcadeButtons.StickLeft) ||
+                    Input.GetButton(2, Input.ArcadeButtons.StickLeft)) &&
+                   (_heading == Heading.Up || _heading == Heading.Down) && !_headingChangedSinceLastMove) {
             _heading = Heading.Left;
             _headingChangedSinceLastMove = true;
-        }
-        else if ((Keyboard.GetState().IsKeyDown(Keys.Right) || Input.GetButton(1, Input.ArcadeButtons.StickRight) ||
-                  Input.GetButton(2, Input.ArcadeButtons.StickRight)) &&
-                 (_heading == Heading.Up || _heading == Heading.Down) && !_headingChangedSinceLastMove) {
+        } else if ((Keyboard.GetState().IsKeyDown(Keys.Right) || Input.GetButton(1, Input.ArcadeButtons.StickRight) ||
+                    Input.GetButton(2, Input.ArcadeButtons.StickRight)) &&
+                   (_heading == Heading.Up || _heading == Heading.Down) && !_headingChangedSinceLastMove) {
             _heading = Heading.Right;
             _headingChangedSinceLastMove = true;
         }
@@ -209,48 +233,81 @@ public class Game1 : Game {
         _framesSinceLastMove = 0;
         _headingChangedSinceLastMove = false;
 
-        var nextCell = new Vector2(_snek.First.Value.X, _snek.First.Value.Y);
+        Vector2 nextCell = new (_snek.First.Value.X, _snek.First.Value.Y);
+        bool death = false;
         switch (_heading) {
             case Heading.Up:
                 nextCell.Y--;
-                if (nextCell.Y >= _gridSize.Height || nextCell.Y < 0) Exit();
+                if (nextCell.Y >= _gridSize.Height || nextCell.Y < 0) {
+                    death = true;
+                }
 
                 break;
             case Heading.Down:
                 nextCell.Y++;
-                if (nextCell.Y >= _gridSize.Height || nextCell.Y < 0) Exit();
+                if (nextCell.Y >= _gridSize.Height || nextCell.Y < 0) {
+                    death = true;
+                }
 
                 break;
             case Heading.Left:
                 nextCell.X--;
-                if (nextCell.X >= _gridSize.Width || nextCell.X < 0) Exit();
+                if (nextCell.X >= _gridSize.Width || nextCell.X < 0) {
+                    death = true;
+                }
 
                 break;
             case Heading.Right:
                 nextCell.X++;
-                if (nextCell.X >= _gridSize.Width || nextCell.X < 0) Exit();
+                if (nextCell.X >= _gridSize.Width || nextCell.X < 0) {
+                    death = true;
+                }
 
                 break;
             default:
                 Console.WriteLine("everything is broken\nthe apocalypse is upon us\ngodspeed");
-                Exit();
+                death = true;
                 break;
         }
 
-        if (_snek.Contains(nextCell)) Exit();
+        if (_snek.Contains(nextCell)) {
+            death = true;
+        }
+
+        if (death) {
+            if (RNG.Next(1000000) == 696969) {
+                _eatEasterEgg.Play();
+                Thread.Sleep(_eatEasterEgg.Duration.Milliseconds);
+            } else {
+                _eatShit.Play();
+                Thread.Sleep(_eatShit.Duration.Milliseconds);
+            }
+
+            Environment.Exit((int)_score);
+        }
 
         _snek.AddFirst(nextCell);
 
         if (!_food.Contains(nextCell)) {
             _snek.RemoveLast();
-        }
-        else {
-            var foodIndex = Array.FindIndex(_food,
+        } else {
+            int foodIndex = Array.FindIndex(_food,
                 vector2 => (int)Math.Round(vector2.X) == (int)Math.Round(nextCell.X) &&
                            (int)Math.Round(vector2.Y) == (int)Math.Round(nextCell.Y));
             CreateFood(foodIndex);
             _score++;
-            if (_score % 10 == 0) _framesPerMove = (int)(_speedMultiplier * _framesPerMove);
+            if (_score % 10 == 0) {
+                _framesPerMove = (int)(_speedMultiplier * _framesPerMove);
+            }
+
+            switch (RNG.Next(1)) {
+                case 0:
+                    _eatApple0.Play();
+                    break;
+                case 1:
+                    _eatApple1.Play();
+                    break;
+            }
         }
 
         base.Update(gameTime);
@@ -264,11 +321,11 @@ public class Game1 : Game {
         GraphicsDevice.Clear(Color.Black);
 
         _nextFrameSnek = new ArrayList[_gridSize.Width, _gridSize.Height];
-        for (var node = _snek.First; node != null; node = node.Next) {
-            var cell = node.Value;
-            var textures = new ArrayList();
+        for (LinkedListNode<Vector2> node = _snek.First; node != null; node = node.Next) {
+            Vector2 cell = node.Value;
+            ArrayList textures = new ArrayList();
             textures.Add(_directionlessCell);
-            if (node.Next != null)
+            if (node.Next != null) {
                 switch ((cell - node.Next.Value).X) {
                     case 1:
                         textures.Add(_leftCell);
@@ -288,8 +345,9 @@ public class Game1 : Game {
 
                         break;
                 }
+            }
 
-            if (node.Previous != null)
+            if (node.Previous != null) {
                 switch ((cell - node.Previous.Value).X) {
                     case 1:
                         textures.Add(_leftCell);
@@ -309,32 +367,40 @@ public class Game1 : Game {
 
                         break;
                 }
+            }
 
             _nextFrameSnek[(int)Math.Round(cell.X), (int)Math.Round(cell.Y)] = textures;
         }
 
         _spriteBatch.Begin();
-        var scoreString = _score.ToString();
-        
-        _spriteBatch.DrawString(_scoreFont, scoreString, new Vector2((_graphics.PreferredBackBufferWidth - _scoreFontSize.X * scoreString.Length)/2, (_graphics.PreferredBackBufferHeight-_scoreFontSize.Y)/2),
+        string scoreString = _score.ToString();
+
+        _spriteBatch.DrawString(_scoreFont, scoreString,
+            new Vector2((_graphics.PreferredBackBufferWidth - _scoreFontSize.X * scoreString.Length) / 2,
+                (_graphics.PreferredBackBufferHeight - _scoreFontSize.Y) / 2),
             Color.DarkSlateGray);
 
-        for (var i = 0; i < _gridSize.Width; i++)
-        for (var j = 0; j < _gridSize.Height; j++)
-            if (_nextFrameSnek[i, j] != null)
-                for (var k = 0; k < _nextFrameSnek[i, j].Count; k++)
+        for (int i = 0; i < _gridSize.Width; i++)
+        for (int j = 0; j < _gridSize.Height; j++) {
+            if (_nextFrameSnek[i, j] != null) {
+                for (int k = 0; k < _nextFrameSnek[i, j].Count; k++) {
                     _spriteBatch.Draw((Texture2D)_nextFrameSnek[i, j][k],
                         new Rectangle(_gridSquareSize * i, _gridSquareSize * j, _gridSquareSize,
                             _gridSquareSize), Color.White);
+                }
+            }
+        }
+
         // else {
         //     _spriteBatch.Draw(_emptyCell,
         //         new Rectangle(_gridSquareSize * (i), _gridSquareSize * (j), _gridSquareSize,
         //             _gridSquareSize), Color.White);
         // }
-        foreach (var f in _food)
+        foreach (Vector2 f in _food) {
             _spriteBatch.Draw(_foodCell,
                 new Rectangle((int)Math.Round(_gridSquareSize * f.X), (int)Math.Round(_gridSquareSize * f.Y),
                     _gridSquareSize, _gridSquareSize), Color.White);
+        }
 
         _spriteBatch.End();
 
