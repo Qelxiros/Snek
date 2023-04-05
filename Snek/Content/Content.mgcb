@@ -37,6 +37,16 @@
 /processorParam:Quality=Best
 /build:eatShit.wav
 
+#begin kongtext.ttf
+/copy:kongtext.ttf
+
+#begin menu.spritefont
+/importer:FontDescriptionImporter
+/processor:FontDescriptionProcessor
+/processorParam:PremultiplyAlpha=True
+/processorParam:TextureFormat=Compressed
+/build:menu.spritefont
+
 #begin score.spritefont
 /importer:FontDescriptionImporter
 /processor:FontDescriptionProcessor

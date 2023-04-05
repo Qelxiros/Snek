@@ -1,11 +1,9 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
 using Devcade;
+using Devcade.SaveData;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 
@@ -20,36 +18,11 @@ public enum Heading {
 
 public class Game1 : Game {
     private readonly GraphicsDeviceManager _graphics;
-    private int _concurrentFoods;
-    private Texture2D _directionlessCell;
-    private Texture2D _downCell;
-    private Vector2[] _food;
-    private Texture2D _foodCell;
-    private Color _foodColor;
-    private int _framesPerMove;
-    private int _framesSinceLastMove;
-    private Rectangle _gridSize;
-    private int _gridSquareSize;
-    private Heading _heading;
-    private bool _headingChangedSinceLastMove;
-    private Texture2D _leftCell;
-    private ArrayList[,] _nextFrameSnek;
-    private Random _rand;
-    private Texture2D _rightCell;
-    private long _score;
-    private SpriteFont _scoreFont;
-    private Vector2 _scoreFontSize;
-    private LinkedList<Vector2> _snek;
-    private Color _snekColor;
-    private float _speedMultiplier;
     private SpriteBatch _spriteBatch;
-    private Texture2D _upCell;
     private Rectangle _windowSize;
-    private SoundEffect _eatApple0;
-    private SoundEffect _eatApple1;
-    private SoundEffect _eatEasterEgg;
-    private SoundEffect _eatShit;
-    private static readonly Random RNG = new();
+    private bool _isKeyDown;
+    private readonly List<IGameMode> _states;
+    private IGameMode _activeState;
 
     /// <summary>
     ///     Game constructor
@@ -58,6 +31,10 @@ public class Game1 : Game {
         _graphics = new GraphicsDeviceManager(this);
         Content.RootDirectory = "Content";
         IsMouseVisible = false;
+        _states = new List<IGameMode> {
+            new Menu(this),
+        };
+        _activeState = _states[0];
     }
 
     /// <summary>
@@ -80,30 +57,11 @@ public class Game1 : Game {
 
         #endregion
 
-        _score = 0;
-        _speedMultiplier = 0.95F;
-        _snekColor = Color.LimeGreen;
-        _foodColor = Color.Red;
-        _framesSinceLastMove = 0;
-        _framesPerMove = 10;
-        _headingChangedSinceLastMove = false;
-        _concurrentFoods = 1;
-        _gridSquareSize = 70;
         _windowSize = GraphicsDevice.Viewport.Bounds;
-        _gridSize = new Rectangle(0, 0, _windowSize.Width / _gridSquareSize,
-            _windowSize.Height / _gridSquareSize);
+        _isKeyDown = false;
 
-        _rand = new Random();
-
-        _snek = new LinkedList<Vector2>();
-        _snek.AddFirst(new Vector2(0, 0));
-        _snek.AddFirst(new Vector2(0, 1));
-        _snek.AddFirst(new Vector2(0, 2));
-        _snek.AddFirst(new Vector2(0, 3));
-        _heading = Heading.Down;
-        _food = new Vector2[_concurrentFoods];
-        for (int i = 0; i < _concurrentFoods; i++) {
-            CreateFood(i);
+        foreach (IGameMode g in _states) {
+            g.Initialize(_windowSize.Width, _windowSize.Height);
         }
 
         base.Initialize();
@@ -114,76 +72,10 @@ public class Game1 : Game {
     /// </summary>
     protected override void LoadContent() {
         _spriteBatch = new SpriteBatch(GraphicsDevice);
-        _scoreFont = Content.Load<SpriteFont>("score");
-        _scoreFontSize = _scoreFont.MeasureString("0"); // the font is monospace so this works
 
-        Color[] data = new Color[_gridSquareSize * _gridSquareSize];
-
-        _directionlessCell = new Texture2D(GraphicsDevice, _gridSquareSize, _gridSquareSize);
-        for (int i = 0; i < _gridSquareSize * _gridSquareSize; i++) {
-            if (i > 630 && i < 4200 && i % _gridSquareSize >= 10 && i % _gridSquareSize < 60) {
-                data[i] = _snekColor;
-            }
+        foreach (IGameMode g in _states) {
+            g.LoadContent(this, Content);
         }
-
-        _directionlessCell.SetData(data);
-
-        _rightCell = new Texture2D(GraphicsDevice, _gridSquareSize, _gridSquareSize);
-        data = new Color[_gridSquareSize * _gridSquareSize];
-        for (int i = 0; i < _gridSquareSize * _gridSquareSize; i++) {
-            if (i >= 630 && i <= 4200 && i % _gridSquareSize >= 60) {
-                data[i] = _snekColor;
-            }
-        }
-
-        _rightCell.SetData(data);
-
-        _leftCell = new Texture2D(GraphicsDevice, _gridSquareSize, _gridSquareSize);
-        data = new Color[_gridSquareSize * _gridSquareSize];
-        for (int i = 0; i < _gridSquareSize * _gridSquareSize; i++) {
-            if (i >= 630 && i < 4200 && i % _gridSquareSize <= 10) {
-                data[i] = _snekColor;
-            }
-        }
-
-        _leftCell.SetData(data);
-
-        _upCell = new Texture2D(GraphicsDevice, _gridSquareSize, _gridSquareSize);
-        data = new Color[_gridSquareSize * _gridSquareSize];
-        for (int i = 0; i < _gridSquareSize * _gridSquareSize; i++) {
-            if (i < 4200 && i % _gridSquareSize >= 10 && i % _gridSquareSize < 60) {
-                data[i] = _snekColor;
-            }
-        }
-
-        _upCell.SetData(data);
-
-        _downCell = new Texture2D(GraphicsDevice, _gridSquareSize, _gridSquareSize);
-        data = new Color[_gridSquareSize * _gridSquareSize];
-        for (int i = 0; i < _gridSquareSize * _gridSquareSize; i++) {
-            if (i > 630 && i % _gridSquareSize >= 10 && i % _gridSquareSize < 60) {
-                data[i] = _snekColor;
-            }
-        }
-
-        _downCell.SetData(data);
-
-        data = new Color[_gridSquareSize * _gridSquareSize];
-        _foodCell = new Texture2D(GraphicsDevice, _gridSquareSize, _gridSquareSize);
-        for (int i = 0; i < _gridSquareSize * _gridSquareSize; i++) {
-            int x = i % _gridSquareSize - _gridSquareSize / 2;
-            int y = i / _gridSquareSize - _gridSquareSize / 2;
-            if (x * x + y * y < _gridSquareSize * 0.2 * (_gridSquareSize * 0.2)) {
-                data[i] = _foodColor;
-            }
-        }
-
-        _foodCell.SetData(data);
-
-        _eatApple0 = Content.Load<SoundEffect>("apple0");
-        _eatApple1 = Content.Load<SoundEffect>("apple1");
-        _eatShit = Content.Load<SoundEffect>("eatShit");
-        _eatEasterEgg = Content.Load<SoundEffect>("eatEasterEgg");
     }
 
     /// <summary>
@@ -202,114 +94,26 @@ public class Game1 : Game {
             Exit();
         }
 
-        if ((Keyboard.GetState().IsKeyDown(Keys.Up) || Input.GetButton(1, Input.ArcadeButtons.StickUp) ||
-             Input.GetButton(2, Input.ArcadeButtons.StickUp)) &&
-            (_heading == Heading.Left || _heading == Heading.Right) &&
-            !_headingChangedSinceLastMove) {
-            _heading = Heading.Up;
-            _headingChangedSinceLastMove = true;
-        } else if ((Keyboard.GetState().IsKeyDown(Keys.Down) || Input.GetButton(1, Input.ArcadeButtons.StickDown) ||
-                    Input.GetButton(2, Input.ArcadeButtons.StickDown)) &&
-                   (_heading == Heading.Left || _heading == Heading.Right) && !_headingChangedSinceLastMove) {
-            _heading = Heading.Down;
-            _headingChangedSinceLastMove = true;
-        } else if ((Keyboard.GetState().IsKeyDown(Keys.Left) || Input.GetButton(1, Input.ArcadeButtons.StickLeft) ||
-                    Input.GetButton(2, Input.ArcadeButtons.StickLeft)) &&
-                   (_heading == Heading.Up || _heading == Heading.Down) && !_headingChangedSinceLastMove) {
-            _heading = Heading.Left;
-            _headingChangedSinceLastMove = true;
-        } else if ((Keyboard.GetState().IsKeyDown(Keys.Right) || Input.GetButton(1, Input.ArcadeButtons.StickRight) ||
-                    Input.GetButton(2, Input.ArcadeButtons.StickRight)) &&
-                   (_heading == Heading.Up || _heading == Heading.Down) && !_headingChangedSinceLastMove) {
-            _heading = Heading.Right;
-            _headingChangedSinceLastMove = true;
-        }
+        _activeState.Update(gameTime, _isKeyDown);
 
-        if (_framesSinceLastMove < _framesPerMove) {
-            _framesSinceLastMove++;
-            return;
-        }
-
-        _framesSinceLastMove = 0;
-        _headingChangedSinceLastMove = false;
-
-        Vector2 nextCell = new (_snek.First.Value.X, _snek.First.Value.Y);
-        bool death = false;
-        switch (_heading) {
-            case Heading.Up:
-                nextCell.Y--;
-                if (nextCell.Y >= _gridSize.Height || nextCell.Y < 0) {
-                    death = true;
-                }
-
-                break;
-            case Heading.Down:
-                nextCell.Y++;
-                if (nextCell.Y >= _gridSize.Height || nextCell.Y < 0) {
-                    death = true;
-                }
-
-                break;
-            case Heading.Left:
-                nextCell.X--;
-                if (nextCell.X >= _gridSize.Width || nextCell.X < 0) {
-                    death = true;
-                }
-
-                break;
-            case Heading.Right:
-                nextCell.X++;
-                if (nextCell.X >= _gridSize.Width || nextCell.X < 0) {
-                    death = true;
-                }
-
-                break;
-            default:
-                Console.WriteLine("everything is broken\nthe apocalypse is upon us\ngodspeed");
-                death = true;
-                break;
-        }
-
-        if (_snek.Contains(nextCell)) {
-            death = true;
-        }
-
-        if (death) {
-            if (RNG.Next(1000000) == 696969) {
-                _eatEasterEgg.Play();
-                Thread.Sleep(_eatEasterEgg.Duration.Milliseconds);
-            } else {
-                _eatShit.Play();
-                Thread.Sleep(_eatShit.Duration.Milliseconds);
-            }
-
-            Environment.Exit((int)_score);
-        }
-
-        _snek.AddFirst(nextCell);
-
-        if (!_food.Contains(nextCell)) {
-            _snek.RemoveLast();
-        } else {
-            int foodIndex = Array.FindIndex(_food,
-                vector2 => (int)Math.Round(vector2.X) == (int)Math.Round(nextCell.X) &&
-                           (int)Math.Round(vector2.Y) == (int)Math.Round(nextCell.Y));
-            CreateFood(foodIndex);
-            _score++;
-            if (_score % 10 == 0) {
-                _framesPerMove = (int)(_speedMultiplier * _framesPerMove);
-            }
-
-            switch (RNG.Next(1)) {
-                case 0:
-                    _eatApple0.Play();
-                    break;
-                case 1:
-                    _eatApple1.Play();
-                    break;
-            }
-        }
-
+        _isKeyDown = !(Keyboard.GetState().GetPressedKeys().Length == 0 &&
+                       !Input.GetButton(1, Input.ArcadeButtons.A1) && !Input.GetButton(1, Input.ArcadeButtons.A2) &&
+                       !Input.GetButton(1, Input.ArcadeButtons.A3) && !Input.GetButton(1, Input.ArcadeButtons.A4) &&
+                       !Input.GetButton(1, Input.ArcadeButtons.B1) && !Input.GetButton(1, Input.ArcadeButtons.B2) &&
+                       !Input.GetButton(1, Input.ArcadeButtons.B3) && !Input.GetButton(1, Input.ArcadeButtons.B4) &&
+                       !Input.GetButton(1, Input.ArcadeButtons.StickUp) &&
+                       !Input.GetButton(1, Input.ArcadeButtons.StickDown) &&
+                       !Input.GetButton(1, Input.ArcadeButtons.StickLeft) &&
+                       !Input.GetButton(1, Input.ArcadeButtons.StickRight) &&
+                       !Input.GetButton(2, Input.ArcadeButtons.A1) && !Input.GetButton(2, Input.ArcadeButtons.A2) &&
+                       !Input.GetButton(2, Input.ArcadeButtons.A3) && !Input.GetButton(2, Input.ArcadeButtons.A4) &&
+                       !Input.GetButton(2, Input.ArcadeButtons.B1) && !Input.GetButton(2, Input.ArcadeButtons.B2) &&
+                       !Input.GetButton(2, Input.ArcadeButtons.B3) && !Input.GetButton(2, Input.ArcadeButtons.B4) &&
+                       !Input.GetButton(2, Input.ArcadeButtons.StickUp) &&
+                       !Input.GetButton(2, Input.ArcadeButtons.StickDown) &&
+                       !Input.GetButton(2, Input.ArcadeButtons.StickLeft) &&
+                       !Input.GetButton(2, Input.ArcadeButtons.StickRight));
+        
         base.Update(gameTime);
     }
 
@@ -319,100 +123,37 @@ public class Game1 : Game {
     /// <param name="gameTime">This is the gameTime object you can use to get the time since last frame.</param>
     protected override void Draw(GameTime gameTime) {
         GraphicsDevice.Clear(Color.Black);
-
-        _nextFrameSnek = new ArrayList[_gridSize.Width, _gridSize.Height];
-        for (LinkedListNode<Vector2> node = _snek.First; node != null; node = node.Next) {
-            Vector2 cell = node.Value;
-            ArrayList textures = new ArrayList();
-            textures.Add(_directionlessCell);
-            if (node.Next != null) {
-                switch ((cell - node.Next.Value).X) {
-                    case 1:
-                        textures.Add(_leftCell);
-                        break;
-                    case -1:
-                        textures.Add(_rightCell);
-                        break;
-                    case 0:
-                        switch ((cell - node.Next.Value).Y) {
-                            case 1:
-                                textures.Add(_upCell);
-                                break;
-                            case -1:
-                                textures.Add(_downCell);
-                                break;
-                        }
-
-                        break;
-                }
-            }
-
-            if (node.Previous != null) {
-                switch ((cell - node.Previous.Value).X) {
-                    case 1:
-                        textures.Add(_leftCell);
-                        break;
-                    case -1:
-                        textures.Add(_rightCell);
-                        break;
-                    case 0:
-                        switch ((cell - node.Previous.Value).Y) {
-                            case 1:
-                                textures.Add(_upCell);
-                                break;
-                            case -1:
-                                textures.Add(_downCell);
-                                break;
-                        }
-
-                        break;
-                }
-            }
-
-            _nextFrameSnek[(int)Math.Round(cell.X), (int)Math.Round(cell.Y)] = textures;
-        }
-
+        
         _spriteBatch.Begin();
-        string scoreString = _score.ToString();
-
-        _spriteBatch.DrawString(_scoreFont, scoreString,
-            new Vector2((_graphics.PreferredBackBufferWidth - _scoreFontSize.X * scoreString.Length) / 2,
-                (_graphics.PreferredBackBufferHeight - _scoreFontSize.Y) / 2),
-            Color.DarkSlateGray);
-
-        for (int i = 0; i < _gridSize.Width; i++)
-        for (int j = 0; j < _gridSize.Height; j++) {
-            if (_nextFrameSnek[i, j] != null) {
-                for (int k = 0; k < _nextFrameSnek[i, j].Count; k++) {
-                    _spriteBatch.Draw((Texture2D)_nextFrameSnek[i, j][k],
-                        new Rectangle(_gridSquareSize * i, _gridSquareSize * j, _gridSquareSize,
-                            _gridSquareSize), Color.White);
-                }
-            }
-        }
-
-        // else {
-        //     _spriteBatch.Draw(_emptyCell,
-        //         new Rectangle(_gridSquareSize * (i), _gridSquareSize * (j), _gridSquareSize,
-        //             _gridSquareSize), Color.White);
-        // }
-        foreach (Vector2 f in _food) {
-            _spriteBatch.Draw(_foodCell,
-                new Rectangle((int)Math.Round(_gridSquareSize * f.X), (int)Math.Round(_gridSquareSize * f.Y),
-                    _gridSquareSize, _gridSquareSize), Color.White);
-        }
-
+        _activeState.Draw(_spriteBatch, _graphics);
         _spriteBatch.End();
 
         base.Draw(gameTime);
     }
 
-    private void CreateFood(int index) {
-        Vector2 food;
-        do {
-            food = new Vector2(_rand.Next(_gridSize.Width), _rand.Next(_gridSize.Height));
-        } while (_snek.Contains(food));
-
-        _food[index] = food;
+    public void AddState(IGameMode state) {
+        _states.Add(state);
+        state.Initialize(_windowSize.Width, _windowSize.Height);
+        state.LoadContent(this, Content);
+        _activeState = state;
     }
+
+    public void RemoveState(IGameMode state, IGameMode fallback) {
+        _states.Remove(state);
+        _activeState = fallback;
+    }
+
+    // me when save-load doesn't work
+    // public static void HandleScore(long score) {
+    //     string scoreString = SaveManager.Instance.LoadText("scores");
+    //     List<long> scores = scoreString.Split(",").Select(long.Parse).ToList();
+    //     scores.Add(score);
+    //     scores.Sort();
+    //     if (scores.Count > 5) {
+    //         scores.RemoveAt(5);
+    //     }
+    //
+    //     string newScores = string.Join(",", scores);
+    //     SaveManager.Instance.SaveText("scores", newScores);
+    // }
 }

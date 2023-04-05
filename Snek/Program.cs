@@ -2,5 +2,5 @@
 
 using Snek;
 
-using Game1 game = new Game1();
+using Game1 game = new();
 game.Run();
