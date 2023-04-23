@@ -9,6 +9,7 @@ using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using Newtonsoft.Json.Serialization;
 
 namespace Snek; 
 
@@ -159,10 +160,7 @@ public class Snek : IGameMode {
         _eatEasterEgg = content.Load<SoundEffect>("eatEasterEgg");
     }
 
-    public void ReInitialize() {
-    }
-
-    public void Update(GameTime gameTime, bool isKeyDown) {
+    public void Update() {
         if ((Keyboard.GetState().IsKeyDown(Keys.Up) || Input.GetButton(1, Input.ArcadeButtons.StickUp) ||
              Input.GetButton(2, Input.ArcadeButtons.StickUp)) &&
             _heading is Heading.Left or Heading.Right &&
@@ -197,6 +195,11 @@ public class Snek : IGameMode {
         _framesSinceLastMove = 0;
         _headingChangedSinceLastMove = false;
 
+        if (_snek.First == null) {
+            Console.Error.WriteLine("this is very bad");
+            Environment.Exit(1);
+        }
+        
         Vector2 nextCell = new(_snek.First.Value.X, _snek.First.Value.Y);
         bool death = false;
         switch (_heading) {
@@ -248,7 +251,7 @@ public class Snek : IGameMode {
                 Thread.Sleep(_eatShit.Duration.Milliseconds);
             }
 
-            _game1.RemoveState(this, _menu);
+            _game1.ReturnToState(_menu);
         }
 
         _snek.AddFirst(nextCell);
@@ -367,17 +370,6 @@ public class Snek : IGameMode {
     private void CreateFood(int index, bool fr) {
         if (!fr) {
             _food[index] = null;
-            Console.WriteLine(index);
-            foreach (Vector2? f in _food) {
-                if (f == null) {
-                    Console.Write("null, ");
-                } else {
-                    Console.Write("[{0},{1}], ", f.Value.X, f.Value.Y);
-                }
-            }
-            Console.WriteLine();
-            Console.WriteLine("------------------------------------");
-            Console.WriteLine();
         } else {
             Tuple<int, int> temp = _unusedCells.ElementAt(_rng.Next(_unusedCells.Count));
             _unusedCells.Remove(temp);

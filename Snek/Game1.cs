@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using Devcade;
-using Devcade.SaveData;
+﻿using Devcade;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -20,8 +16,6 @@ public class Game1 : Game {
     private readonly GraphicsDeviceManager _graphics;
     private SpriteBatch _spriteBatch;
     private Rectangle _windowSize;
-    private bool _isKeyDown;
-    private readonly List<IGameMode> _states;
     private IGameMode _activeState;
 
     /// <summary>
@@ -31,10 +25,7 @@ public class Game1 : Game {
         _graphics = new GraphicsDeviceManager(this);
         Content.RootDirectory = "Content";
         IsMouseVisible = false;
-        _states = new List<IGameMode> {
-            new Menu(this),
-        };
-        _activeState = _states[0];
+        _activeState = new Landing(this);
     }
 
     /// <summary>
@@ -58,11 +49,7 @@ public class Game1 : Game {
         #endregion
 
         _windowSize = GraphicsDevice.Viewport.Bounds;
-        _isKeyDown = false;
-
-        foreach (IGameMode g in _states) {
-            g.Initialize(_windowSize.Width, _windowSize.Height);
-        }
+        _activeState.Initialize(_windowSize.Width, _windowSize.Height);
 
         base.Initialize();
     }
@@ -72,10 +59,8 @@ public class Game1 : Game {
     /// </summary>
     protected override void LoadContent() {
         _spriteBatch = new SpriteBatch(GraphicsDevice);
-
-        foreach (IGameMode g in _states) {
-            g.LoadContent(this, Content);
-        }
+            
+        _activeState.LoadContent(this, Content);
     }
 
     /// <summary>
@@ -94,25 +79,7 @@ public class Game1 : Game {
             Exit();
         }
 
-        _activeState.Update(gameTime, _isKeyDown);
-
-        _isKeyDown = !(Keyboard.GetState().GetPressedKeys().Length == 0 &&
-                       !Input.GetButton(1, Input.ArcadeButtons.A1) && !Input.GetButton(1, Input.ArcadeButtons.A2) &&
-                       !Input.GetButton(1, Input.ArcadeButtons.A3) && !Input.GetButton(1, Input.ArcadeButtons.A4) &&
-                       !Input.GetButton(1, Input.ArcadeButtons.B1) && !Input.GetButton(1, Input.ArcadeButtons.B2) &&
-                       !Input.GetButton(1, Input.ArcadeButtons.B3) && !Input.GetButton(1, Input.ArcadeButtons.B4) &&
-                       !Input.GetButton(1, Input.ArcadeButtons.StickUp) &&
-                       !Input.GetButton(1, Input.ArcadeButtons.StickDown) &&
-                       !Input.GetButton(1, Input.ArcadeButtons.StickLeft) &&
-                       !Input.GetButton(1, Input.ArcadeButtons.StickRight) &&
-                       !Input.GetButton(2, Input.ArcadeButtons.A1) && !Input.GetButton(2, Input.ArcadeButtons.A2) &&
-                       !Input.GetButton(2, Input.ArcadeButtons.A3) && !Input.GetButton(2, Input.ArcadeButtons.A4) &&
-                       !Input.GetButton(2, Input.ArcadeButtons.B1) && !Input.GetButton(2, Input.ArcadeButtons.B2) &&
-                       !Input.GetButton(2, Input.ArcadeButtons.B3) && !Input.GetButton(2, Input.ArcadeButtons.B4) &&
-                       !Input.GetButton(2, Input.ArcadeButtons.StickUp) &&
-                       !Input.GetButton(2, Input.ArcadeButtons.StickDown) &&
-                       !Input.GetButton(2, Input.ArcadeButtons.StickLeft) &&
-                       !Input.GetButton(2, Input.ArcadeButtons.StickRight));
+        _activeState.Update();
         
         base.Update(gameTime);
     }
@@ -132,14 +99,12 @@ public class Game1 : Game {
     }
 
     public void AddState(IGameMode state) {
-        _states.Add(state);
         state.Initialize(_windowSize.Width, _windowSize.Height);
         state.LoadContent(this, Content);
         _activeState = state;
     }
 
-    public void RemoveState(IGameMode state, IGameMode fallback) {
-        _states.Remove(state);
+    public void ReturnToState(IGameMode fallback) {
         _activeState = fallback;
     }
 

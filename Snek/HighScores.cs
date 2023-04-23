@@ -1,7 +1,5 @@
 using System.Collections.Generic;
-using System.Linq;
 using Devcade;
-using Devcade.SaveData;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
@@ -10,8 +8,8 @@ using Microsoft.Xna.Framework.Input;
 namespace Snek; 
 
 public class HighScores : IGameMode {
-    private IGameMode _menu;
-    private Game1 _game1;
+    private readonly IGameMode _menu;
+    private readonly Game1 _game1;
     private readonly SpriteFont _menuFont;
     private readonly Vector2 _menuFontSize;
     private List<long> _scores;
@@ -31,13 +29,10 @@ public class HighScores : IGameMode {
     public void LoadContent(Game game, ContentManager content) {
     }
 
-    public void ReInitialize() {
-    }
-
-    public void Update(GameTime gameTime, bool isKeyDown) {
-        if (Input.GetButton(1, Input.ArcadeButtons.A2) || Input.GetButton(2, Input.ArcadeButtons.A2) ||
+    public void Update() {
+        if (Input.GetButtonDown(1, Input.ArcadeButtons.A2) || Input.GetButtonDown(2, Input.ArcadeButtons.A2) ||
             Keyboard.GetState().IsKeyDown(Keys.F)) {
-            _game1.RemoveState(this, _menu);
+            _game1.ReturnToState(_menu);
         }
     }
 

@@ -18,8 +18,11 @@ public class Menu : IGameMode {
     private double _speedMultiplier;
     private int _speedIncreaseInterval;
     private readonly Game1 _game1;
+    private readonly Landing _landing;
+    private bool _gameOver;
 
-    public Menu(Game1 game1) {
+    public Menu(Landing landing, Game1 game1) {
+        _landing = landing;
         _game1 = game1;
     }
     
@@ -30,6 +33,7 @@ public class Menu : IGameMode {
         _concurrentFoods = 1;
         _hoveredMenuItem = 4;
         _maxHoveredIndex = 5;
+        _gameOver = false;
     }
 
     public void LoadContent(Game game, ContentManager content) {
@@ -37,75 +41,77 @@ public class Menu : IGameMode {
         _menuFontSize = _menuFont.MeasureString("0");
     }
 
-    public void ReInitialize() {
-    }
+    public void Update() {
+        if (_gameOver) {
+            _game1.ReturnToState(_landing);
+        }
+        
+        if (Input.GetButtonDown(1, Input.ArcadeButtons.StickUp) ||
+            Input.GetButtonDown(2, Input.ArcadeButtons.StickUp) ||
+            Keyboard.GetState().IsKeyDown(Keys.Up)) {
+            _hoveredMenuItem = Math.Max(_hoveredMenuItem - 1, 0);
+        }
 
-    public void Update(GameTime gameTime, bool isKeyDown) {
-        if (!isKeyDown) {
-            if (Input.GetButton(1, Input.ArcadeButtons.StickUp) ||
-                Input.GetButton(2, Input.ArcadeButtons.StickUp) ||
-                Keyboard.GetState().IsKeyDown(Keys.Up)) {
-                _hoveredMenuItem = Math.Max(_hoveredMenuItem - 1, 0);
-            }
+        if (Input.GetButtonDown(1, Input.ArcadeButtons.StickDown) ||
+            Input.GetButtonDown(2, Input.ArcadeButtons.StickDown) ||
+            Keyboard.GetState().IsKeyDown(Keys.Down)) {
+            _hoveredMenuItem = Math.Min(_hoveredMenuItem + 1, _maxHoveredIndex);
+        }
 
-            if (Input.GetButton(1, Input.ArcadeButtons.StickDown) ||
-                Input.GetButton(2, Input.ArcadeButtons.StickDown) ||
-                Keyboard.GetState().IsKeyDown(Keys.Down)) {
-                _hoveredMenuItem = Math.Min(_hoveredMenuItem + 1, _maxHoveredIndex);
-            }
-
-            if (Input.GetButton(1, Input.ArcadeButtons.A1) || Input.GetButton(2, Input.ArcadeButtons.A1) ||
-                Keyboard.GetState().IsKeyDown(Keys.Enter)) {
-                IGameMode state = _hoveredMenuItem switch {
-                    4 => new Snek(this, _game1, _concurrentFoods, _speed, _speedMultiplier, _speedIncreaseInterval),
-                    5 => new HighScores(this, _game1, _menuFont, _menuFontSize),
-                    _ => null
-                };
-                if (state != null) {
-                    _game1.AddState(state);
+        if (Input.GetButtonDown(1, Input.ArcadeButtons.A1) || Input.GetButtonDown(2, Input.ArcadeButtons.A1) ||
+            Keyboard.GetState().IsKeyDown(Keys.Enter)) {
+            IGameMode state = _hoveredMenuItem switch {
+                4 => new Snek(this, _game1, _concurrentFoods, _speed, _speedMultiplier, _speedIncreaseInterval),
+                5 => new HighScores(this, _game1, _menuFont, _menuFontSize),
+                _ => null
+            };
+            if (state != null) {
+                if (state is Snek) {
+                    _gameOver = true;
                 }
+                _game1.AddState(state);
             }
+        }
 
-            if (Input.GetButton(1, Input.ArcadeButtons.A3) || Input.GetButton(2, Input.ArcadeButtons.A3) ||
-                Keyboard.GetState().IsKeyDown(Keys.Left)) {
-                switch (_hoveredMenuItem) {
-                case 0:
-                    _concurrentFoods = Math.Max(_concurrentFoods - 1, 0);
-                    break;
-                case 1:
-                    _speed += 0.05;
-                    break;
-                case 2:
-                    _speedMultiplier += 0.05;
-                    break;
-                case 3:
-                    _speedIncreaseInterval = Math.Max(_speedIncreaseInterval - 1, 0);
-                    break;
-                case 4:
-                case 5:
-                    break;
-                }
+        if (Input.GetButtonDown(1, Input.ArcadeButtons.A3) || Input.GetButtonDown(2, Input.ArcadeButtons.A3) ||
+            Keyboard.GetState().IsKeyDown(Keys.Left)) {
+            switch (_hoveredMenuItem) {
+            case 0:
+                _concurrentFoods = Math.Max(_concurrentFoods - 1, 0);
+                break;
+            case 1:
+                _speed += 0.05;
+                break;
+            case 2:
+                _speedMultiplier += 0.05;
+                break;
+            case 3:
+                _speedIncreaseInterval = Math.Max(_speedIncreaseInterval - 1, 1);
+                break;
+            case 4:
+            case 5:
+                break;
             }
+        }
 
-            if (Input.GetButton(1, Input.ArcadeButtons.A4) || Input.GetButton(2, Input.ArcadeButtons.A4) ||
-                Keyboard.GetState().IsKeyDown(Keys.Right)) {
-                switch (_hoveredMenuItem) {
-                case 0:
-                    _concurrentFoods++;
-                    break;
-                case 1:
-                    _speed = Math.Max(_speed - 0.05, 0.05);
-                    break;
-                case 2:
-                    _speedMultiplier = Math.Max(_speedMultiplier - 0.05, 0);
-                    break;
-                case 3:
-                    _speedIncreaseInterval++;
-                    break;
-                case 4:
-                case 5:
-                    break;
-                }
+        if (Input.GetButtonDown(1, Input.ArcadeButtons.A4) || Input.GetButtonDown(2, Input.ArcadeButtons.A4) ||
+            Keyboard.GetState().IsKeyDown(Keys.Right)) {
+            switch (_hoveredMenuItem) {
+            case 0:
+                _concurrentFoods++;
+                break;
+            case 1:
+                _speed = Math.Max(_speed - 0.05, 0.05);
+                break;
+            case 2:
+                _speedMultiplier = Math.Max(_speedMultiplier - 0.05, 0.05);
+                break;
+            case 3:
+                _speedIncreaseInterval++;
+                break;
+            case 4:
+            case 5:
+                break;
             }
         }
     }

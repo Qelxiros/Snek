@@ -17,16 +17,10 @@ public interface IGameMode {
     public void LoadContent(Game game, ContentManager content);
 
     /**
-     * Called when the game mode is resumed after being paused.
-     * This method should reset everything that needs to be reset (if any) when the game mode is resumed.
-     */
-    public void ReInitialize();
-
-    /**
      * All update logic for this game mode should be done here. This will only be called when this game mode is the active game mode.
      * This will run before draw.
      */
-    public void Update(GameTime gameTime, bool isKeyDown);
+    public void Update();
 
     /**
      * All drawing logic for this game mode should be done here. This will only be called when this game mode is the active game mode.
