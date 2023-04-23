@@ -7,13 +7,15 @@ using Microsoft.Xna.Framework.Input;
 
 namespace Snek; 
 
-public class Landing : IGameMode {
+public class Interim : IGameMode {
     private SpriteFont _font;
     private Vector2 _fontSize;
     private readonly Game1 _game1;
-
-    public Landing(Game1 game1) {
+    private readonly Menu _menu;
+    
+    public Interim(Game1 game1, Menu menu) {
         _game1 = game1;
+        _menu = menu;
     }
     
     public void Initialize(double width, double height) {
@@ -29,13 +31,13 @@ public class Landing : IGameMode {
         if (Input.GetButtonDown(1, Input.ArcadeButtons.B1) || Input.GetButtonDown(1, Input.ArcadeButtons.B2) ||
             Input.GetButtonDown(1, Input.ArcadeButtons.B3) || Input.GetButtonDown(1, Input.ArcadeButtons.B4) ||
             Keyboard.GetState().IsKeyDown(Keys.P)) {
-            _game1.AddState(new Menu(this, _game1));
+            _game1.ReturnToState(_menu);
         }
     }
 
     public void Draw(SpriteBatch spriteBatch, GraphicsDeviceManager graphics) {
         List<string> options = new() {
-            "Welcome to Snek", "", "Press purple button","to start"
+            "Press purple button", "to continue"
         };
 
         for (int i = 0; i < options.Count; i++) {
