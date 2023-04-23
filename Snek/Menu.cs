@@ -64,11 +64,9 @@ public class Menu : IGameMode {
             // }
             switch (_hoveredMenuItem) {
             case 4:
-                IGameMode interim = new Interim(_game1, this);
-                IGameMode snek = new Snek(interim, _game1, _concurrentFoods, _speed, _speedMultiplier,
-                    _speedIncreaseInterval);
+                Interim interim = new Interim(_game1, this, _concurrentFoods, _speed, _speedMultiplier, _speedIncreaseInterval);
                 _game1.AddState(interim);
-                _game1.AddState(snek);
+                _game1.AddState(interim.GetSnek());
                 break;
             case 5:
                 IGameMode highScores = new HighScores(this, _game1, _font, _fontSize);

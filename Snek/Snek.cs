@@ -9,7 +9,6 @@ using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
-using Newtonsoft.Json.Serialization;
 
 namespace Snek; 
 
@@ -42,12 +41,12 @@ public class Snek : IGameMode {
     private Texture2D _upCell;
     private int _gridSquareSize;
     private Rectangle _gridSize;
-    private readonly IGameMode _menu;
+    private readonly IGameMode _fallback;
     private readonly Game1 _game1;
     private HashSet<Tuple<int, int>> _unusedCells;
 
-    public Snek(IGameMode menu, Game1 game1, int concurrentFoods, double speed, double speedMultiplier, int speedIncreaseInterval) {
-        _menu = menu;
+    public Snek(IGameMode fallback, Game1 game1, int concurrentFoods, double speed, double speedMultiplier, int speedIncreaseInterval) {
+        _fallback = fallback;
         _game1 = game1;
         _concurrentFoods = concurrentFoods;
         _speed = speed;
@@ -251,13 +250,17 @@ public class Snek : IGameMode {
                 Thread.Sleep(_eatShit.Duration.Milliseconds);
             }
 
-            _game1.ReturnToState(_menu);
+            _game1.ReturnToState(_fallback);
         }
 
         _snek.AddFirst(nextCell);
         _unusedCells.Remove(new Tuple<int, int>((int)Math.Round(nextCell.X), (int)Math.Round(nextCell.Y)));
 
         if (!_food.Contains(nextCell)) {
+            if (_snek.Last == null) {
+                Console.Error.WriteLine("you will never see this message");
+                Environment.Exit(7);
+            }
             _unusedCells.Add(new Tuple<int, int>((int)Math.Round(_snek.Last.Value.X),
                 (int)Math.Round(_snek.Last.Value.Y)));
             _snek.RemoveLast();
