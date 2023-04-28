@@ -26,8 +26,8 @@ public class Landing : IGameMode {
     }
 
     public void Update() {
-        if (Input.GetButtonDown(1, Input.ArcadeButtons.B1) || Input.GetButtonDown(1, Input.ArcadeButtons.B2) ||
-            Input.GetButtonDown(1, Input.ArcadeButtons.B3) || Input.GetButtonDown(1, Input.ArcadeButtons.B4) ||
+        if (Input.GetButtonDown(2, Input.ArcadeButtons.B1) || Input.GetButtonDown(2, Input.ArcadeButtons.B2) ||
+            Input.GetButtonDown(2, Input.ArcadeButtons.B3) || Input.GetButtonDown(2, Input.ArcadeButtons.B4) ||
             Keyboard.GetState().IsKeyDown(Keys.P)) {
             _game1.AddState(new Menu(this, _game1));
         }
@@ -35,7 +35,7 @@ public class Landing : IGameMode {
 
     public void Draw(SpriteBatch spriteBatch, GraphicsDeviceManager graphics) {
         List<string> options = new() {
-            "Welcome to Snek", "", "Press purple button","to start"
+            "Welcome to Snek", "", "Press yellow button","to start",
         };
 
         for (int i = 0; i < options.Count; i++) {

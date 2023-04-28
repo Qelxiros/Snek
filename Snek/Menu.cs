@@ -40,6 +40,12 @@ public class Menu : IGameMode {
     }
 
     public void Update() {
+        if (Input.GetButtonDown(1, Input.ArcadeButtons.B1) || Input.GetButtonDown(1, Input.ArcadeButtons.B2) ||
+            Input.GetButtonDown(1, Input.ArcadeButtons.B3) || Input.GetButtonDown(1, Input.ArcadeButtons.B4)) {
+            _game1.ReturnToState(_landing);
+            return;
+        }
+        
         if (Input.GetButtonDown(1, Input.ArcadeButtons.StickUp) ||
             Input.GetButtonDown(2, Input.ArcadeButtons.StickUp) ||
             Keyboard.GetState().IsKeyDown(Keys.Up)) {
@@ -75,7 +81,7 @@ public class Menu : IGameMode {
             }
         }
 
-        if (Input.GetButtonDown(1, Input.ArcadeButtons.A3) || Input.GetButtonDown(2, Input.ArcadeButtons.A3) ||
+        if (Input.GetButtonDown(1, Input.ArcadeButtons.A3) || Input.GetButtonDown(2, Input.ArcadeButtons.A3) || Input.GetButtonDown(1, Input.ArcadeButtons.StickLeft) || Input.GetButtonDown(2, Input.ArcadeButtons.StickLeft) ||
             Keyboard.GetState().IsKeyDown(Keys.Left)) {
             switch (_hoveredMenuItem) {
             case 0:
@@ -96,7 +102,7 @@ public class Menu : IGameMode {
             }
         }
 
-        if (Input.GetButtonDown(1, Input.ArcadeButtons.A4) || Input.GetButtonDown(2, Input.ArcadeButtons.A4) ||
+        if (Input.GetButtonDown(1, Input.ArcadeButtons.A4) || Input.GetButtonDown(2, Input.ArcadeButtons.A4) || Input.GetButtonDown(1, Input.ArcadeButtons.StickRight) || Input.GetButtonDown(2, Input.ArcadeButtons.StickRight) ||
             Keyboard.GetState().IsKeyDown(Keys.Right)) {
             switch (_hoveredMenuItem) {
             case 0:
@@ -122,7 +128,7 @@ public class Menu : IGameMode {
         List<string> options = new() {
             "Settings", "Concurrent Foods", $"<{_concurrentFoods}>", "Speed", $"<{1/_speed:P0}>",
             "Speed Increase", $"<x{1/_speedMultiplier:F2}>", "Speed Increase Interval", $"<{_speedIncreaseInterval}>",
-            "Play", "High Scores"
+            "Play", "High Scores", "", "", "", "", "Instructions", "Yellow button to go back", "Joystick left/right", "or green/white buttons", "to change values", "Joystick up/down to move", "Red button to select", "Joystick to change direction in game", 
         };
         List<int> hoverableIndices = new (){2, 4, 6, 8, 9, 10};
 
