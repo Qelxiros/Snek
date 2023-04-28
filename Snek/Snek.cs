@@ -10,42 +10,43 @@ using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 
-namespace Snek; 
+namespace Snek;
 
 public class Snek : IGameMode {
-    private readonly Random _rng = new();
-    private long _score;
-    private readonly double _speedMultiplier;
-    private int _framesSinceLastMove;
-    private double _speed;
-    private readonly int _speedIncreaseInterval;
-    private bool _headingChangedSinceLastMove;
     private readonly int _concurrentFoods;
-    private LinkedList<Vector2> _snek;
-    private Heading _heading;
-    private Vector2?[] _food;
-    private ArrayList[,] _nextFrameSnek;
+    private readonly IGameMode _fallback;
+    private readonly Game1 _game1;
+    private readonly Random _rng = new();
+    private readonly int _speedIncreaseInterval;
+    private readonly double _speedMultiplier;
     private Texture2D _directionlessCell;
     private Texture2D _downCell;
     private SoundEffect _eatApple0;
     private SoundEffect _eatApple1;
     private SoundEffect _eatEasterEgg;
     private SoundEffect _eatShit;
+    private Vector2?[] _food;
     private Texture2D _foodCell;
     private Color _foodColor;
+    private int _framesSinceLastMove;
+    private Rectangle _gridSize;
+    private int _gridSquareSize;
+    private Heading _heading;
+    private bool _headingChangedSinceLastMove;
     private Texture2D _leftCell;
+    private ArrayList[,] _nextFrameSnek;
     private Texture2D _rightCell;
+    private long _score;
     private SpriteFont _scoreFont;
     private Vector2 _scoreFontSize;
+    private LinkedList<Vector2> _snek;
     private Color _snekColor;
-    private Texture2D _upCell;
-    private int _gridSquareSize;
-    private Rectangle _gridSize;
-    private readonly IGameMode _fallback;
-    private readonly Game1 _game1;
+    private double _speed;
     private HashSet<Tuple<int, int>> _unusedCells;
+    private Texture2D _upCell;
 
-    public Snek(IGameMode fallback, Game1 game1, int concurrentFoods, double speed, double speedMultiplier, int speedIncreaseInterval) {
+    public Snek(IGameMode fallback, Game1 game1, int concurrentFoods, double speed, double speedMultiplier,
+        int speedIncreaseInterval) {
         _fallback = fallback;
         _game1 = game1;
         _concurrentFoods = concurrentFoods;
@@ -67,6 +68,7 @@ public class Snek : IGameMode {
                 _unusedCells.Add(new Tuple<int, int>(i, j));
             }
         }
+
         _snek = new LinkedList<Vector2>();
         _snek.AddFirst(new Vector2(0, 0));
         _unusedCells.Remove(new Tuple<int, int>(0, 0));
@@ -78,10 +80,11 @@ public class Snek : IGameMode {
         _unusedCells.Remove(new Tuple<int, int>(0, 3));
         _heading = Heading.Down;
         _food = new Vector2?[_concurrentFoods];
-        
+
         for (int i = 0; i < _concurrentFoods; i++) {
             CreateFood(i, _unusedCells.Count > 0);
         }
+
         _snekColor = Color.LimeGreen;
         _foodColor = Color.Red;
     }
@@ -186,7 +189,7 @@ public class Snek : IGameMode {
             _headingChangedSinceLastMove = true;
         }
 
-        if (_framesSinceLastMove < 15*_speed) {
+        if (_framesSinceLastMove < 15 * _speed) {
             _framesSinceLastMove++;
             return;
         }
@@ -198,7 +201,7 @@ public class Snek : IGameMode {
             Console.Error.WriteLine("this is very bad");
             Environment.Exit(1);
         }
-        
+
         Vector2 nextCell = new(_snek.First.Value.X, _snek.First.Value.Y);
         bool death = false;
         switch (_heading) {
@@ -261,6 +264,7 @@ public class Snek : IGameMode {
                 Console.Error.WriteLine("you will never see this message");
                 Environment.Exit(7);
             }
+
             _unusedCells.Add(new Tuple<int, int>((int)Math.Round(_snek.Last.Value.X),
                 (int)Math.Round(_snek.Last.Value.Y)));
             _snek.RemoveLast();
@@ -270,10 +274,10 @@ public class Snek : IGameMode {
                            (int)Math.Round(vector2.Value.X) == (int)Math.Round(nextCell.X) &&
                            (int)Math.Round(vector2.Value.Y) == (int)Math.Round(nextCell.Y));
             CreateFood(foodIndex, _unusedCells.Count > 0);
-            
+
             _score++;
             if (_score % _speedIncreaseInterval == 0) {
-                _speed = (_speedMultiplier * _speed);
+                _speed = _speedMultiplier * _speed;
             }
 
             switch (_rng.Next(1)) {
@@ -338,7 +342,7 @@ public class Snek : IGameMode {
 
             _nextFrameSnek[(int)Math.Round(cell.X), (int)Math.Round(cell.Y)] = textures;
         }
-        
+
         string scoreString = _score.ToString();
 
         spriteBatch.DrawString(_scoreFont, scoreString,
@@ -364,8 +368,10 @@ public class Snek : IGameMode {
             if (f == null) {
                 continue;
             }
+
             spriteBatch.Draw(_foodCell,
-                new Rectangle((int)Math.Round(_gridSquareSize * f.Value.X), (int)Math.Round(_gridSquareSize * f.Value.Y),
+                new Rectangle((int)Math.Round(_gridSquareSize * f.Value.X),
+                    (int)Math.Round(_gridSquareSize * f.Value.Y),
                     _gridSquareSize, _gridSquareSize), Color.White);
         }
     }

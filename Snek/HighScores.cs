@@ -5,11 +5,11 @@ using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 
-namespace Snek; 
+namespace Snek;
 
 public class HighScores : IGameMode {
-    private readonly IGameMode _menu;
     private readonly Game1 _game1;
+    private readonly IGameMode _menu;
     private readonly SpriteFont _menuFont;
     private readonly Vector2 _menuFontSize;
     private List<long> _scores;
@@ -20,7 +20,7 @@ public class HighScores : IGameMode {
         _menuFont = menuFont;
         _menuFontSize = menuFontSize;
     }
-    
+
     public void Initialize(double width, double height) {
         // uncomment this when save-load exists
         // _scores = SaveManager.Instance.LoadText("scores").Split(",").Select(long.Parse).ToList();
@@ -43,7 +43,7 @@ public class HighScores : IGameMode {
         //         new Vector2((graphics.PreferredBackBufferWidth - score.Length * _menuFontSize.X) / 2,
         //             _menuFontSize.Y * 2 * i), Color.Gray);
         // }
-        spriteBatch.DrawString(_menuFont, "Error 501", new Vector2(0,0), Color.White);
-        spriteBatch.DrawString(_menuFont, "Blue button to go back", new Vector2(0,_menuFontSize.Y * 2), Color.White);
+        spriteBatch.DrawString(_menuFont, "Error 501", new Vector2(0, 0), Color.White);
+        spriteBatch.DrawString(_menuFont, "Blue button to go back", new Vector2(0, _menuFontSize.Y * 2), Color.White);
     }
 }

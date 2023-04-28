@@ -9,14 +9,14 @@ public enum Heading {
     Up,
     Down,
     Left,
-    Right
+    Right,
 }
 
 public class Game1 : Game {
     private readonly GraphicsDeviceManager _graphics;
+    private IGameMode _activeState;
     private SpriteBatch _spriteBatch;
     private Rectangle _windowSize;
-    private IGameMode _activeState;
 
     /// <summary>
     ///     Game constructor
@@ -59,7 +59,7 @@ public class Game1 : Game {
     /// </summary>
     protected override void LoadContent() {
         _spriteBatch = new SpriteBatch(GraphicsDevice);
-            
+
         _activeState.LoadContent(this, Content);
     }
 
@@ -80,7 +80,7 @@ public class Game1 : Game {
         }
 
         _activeState.Update();
-        
+
         base.Update(gameTime);
     }
 
@@ -90,7 +90,7 @@ public class Game1 : Game {
     /// <param name="gameTime">This is the gameTime object you can use to get the time since last frame.</param>
     protected override void Draw(GameTime gameTime) {
         GraphicsDevice.Clear(Color.Black);
-        
+
         _spriteBatch.Begin();
         _activeState.Draw(_spriteBatch, _graphics);
         _spriteBatch.End();

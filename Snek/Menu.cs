@@ -6,25 +6,25 @@ using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 
-namespace Snek; 
+namespace Snek;
 
 public class Menu : IGameMode {
-    private int _hoveredMenuItem;
-    private int _maxHoveredIndex;
-    private SpriteFont _font;
-    private Vector2 _fontSize;
-    private int _concurrentFoods;
-    private double _speed;
-    private double _speedMultiplier;
-    private int _speedIncreaseInterval;
     private readonly Game1 _game1;
     private readonly Landing _landing;
+    private int _concurrentFoods;
+    private SpriteFont _font;
+    private Vector2 _fontSize;
+    private int _hoveredMenuItem;
+    private int _maxHoveredIndex;
+    private double _speed;
+    private int _speedIncreaseInterval;
+    private double _speedMultiplier;
 
     public Menu(Landing landing, Game1 game1) {
         _landing = landing;
         _game1 = game1;
     }
-    
+
     public void Initialize(double width, double height) {
         _speed = 1;
         _speedMultiplier = 0.95;
@@ -45,7 +45,7 @@ public class Menu : IGameMode {
             _game1.ReturnToState(_landing);
             return;
         }
-        
+
         if (Input.GetButtonDown(1, Input.ArcadeButtons.StickUp) ||
             Input.GetButtonDown(2, Input.ArcadeButtons.StickUp) ||
             Keyboard.GetState().IsKeyDown(Keys.Up)) {
@@ -70,7 +70,7 @@ public class Menu : IGameMode {
             // }
             switch (_hoveredMenuItem) {
             case 4:
-                Interim interim = new Interim(_game1, this, _concurrentFoods, _speed, _speedMultiplier, _speedIncreaseInterval);
+                Interim interim = new(_game1, this, _concurrentFoods, _speed, _speedMultiplier, _speedIncreaseInterval);
                 _game1.AddState(interim);
                 _game1.AddState(interim.GetSnek());
                 break;
@@ -81,7 +81,9 @@ public class Menu : IGameMode {
             }
         }
 
-        if (Input.GetButtonDown(1, Input.ArcadeButtons.A3) || Input.GetButtonDown(2, Input.ArcadeButtons.A3) || Input.GetButtonDown(1, Input.ArcadeButtons.StickLeft) || Input.GetButtonDown(2, Input.ArcadeButtons.StickLeft) ||
+        if (Input.GetButtonDown(1, Input.ArcadeButtons.A3) || Input.GetButtonDown(2, Input.ArcadeButtons.A3) ||
+            Input.GetButtonDown(1, Input.ArcadeButtons.StickLeft) ||
+            Input.GetButtonDown(2, Input.ArcadeButtons.StickLeft) ||
             Keyboard.GetState().IsKeyDown(Keys.Left)) {
             switch (_hoveredMenuItem) {
             case 0:
@@ -102,7 +104,9 @@ public class Menu : IGameMode {
             }
         }
 
-        if (Input.GetButtonDown(1, Input.ArcadeButtons.A4) || Input.GetButtonDown(2, Input.ArcadeButtons.A4) || Input.GetButtonDown(1, Input.ArcadeButtons.StickRight) || Input.GetButtonDown(2, Input.ArcadeButtons.StickRight) ||
+        if (Input.GetButtonDown(1, Input.ArcadeButtons.A4) || Input.GetButtonDown(2, Input.ArcadeButtons.A4) ||
+            Input.GetButtonDown(1, Input.ArcadeButtons.StickRight) ||
+            Input.GetButtonDown(2, Input.ArcadeButtons.StickRight) ||
             Keyboard.GetState().IsKeyDown(Keys.Right)) {
             switch (_hoveredMenuItem) {
             case 0:
@@ -126,11 +130,13 @@ public class Menu : IGameMode {
 
     public void Draw(SpriteBatch spriteBatch, GraphicsDeviceManager graphics) {
         List<string> options = new() {
-            "Settings", "Concurrent Foods", $"<{_concurrentFoods}>", "Speed", $"<{1/_speed:P0}>",
-            "Speed Increase", $"<x{1/_speedMultiplier:F2}>", "Speed Increase Interval", $"<{_speedIncreaseInterval}>",
-            "Play", "High Scores", "", "", "", "", "Instructions", "Yellow button to go back", "Joystick left/right", "or green/white buttons", "to change values", "Joystick up/down to move", "Red button to select", "Joystick to change direction in game", 
+            "Settings", "Concurrent Foods", $"<{_concurrentFoods}>", "Speed", $"<{1 / _speed:P0}>",
+            "Speed Increase", $"<x{1 / _speedMultiplier:F2}>", "Speed Increase Interval", $"<{_speedIncreaseInterval}>",
+            "Play", "High Scores", "", "", "", "", "Instructions", "Yellow button to go back", "Joystick left/right",
+            "or green/white buttons", "to change values", "Joystick up/down to move", "Red button to select",
+            "Joystick to change", "direction in game",
         };
-        List<int> hoverableIndices = new (){2, 4, 6, 8, 9, 10};
+        List<int> hoverableIndices = new() { 2, 4, 6, 8, 9, 10 };
 
         for (int i = 0; i < options.Count; i++) {
             Color color = i == hoverableIndices[_hoveredMenuItem] ? Color.White : Color.Gray;

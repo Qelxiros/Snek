@@ -5,19 +5,20 @@ using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 
-namespace Snek; 
+namespace Snek;
 
 public class Interim : IGameMode {
-    private SpriteFont _font;
-    private Vector2 _fontSize;
     private readonly Game1 _game1;
     private readonly Menu _menu;
-    private int _concurrentFoods;
-    private double _speed;
-    private double _speedMultiplier;
-    private int _speedIncreaseInterval;
-    
-    public Interim(Game1 game1, Menu menu, int concurrentFoods, double speed, double speedMultiplier, int speedIncreaseInterval) {
+    private readonly int _concurrentFoods;
+    private SpriteFont _font;
+    private Vector2 _fontSize;
+    private readonly double _speed;
+    private readonly int _speedIncreaseInterval;
+    private readonly double _speedMultiplier;
+
+    public Interim(Game1 game1, Menu menu, int concurrentFoods, double speed, double speedMultiplier,
+        int speedIncreaseInterval) {
         _game1 = game1;
         _menu = menu;
         _concurrentFoods = concurrentFoods;
@@ -25,9 +26,8 @@ public class Interim : IGameMode {
         _speedMultiplier = speedMultiplier;
         _speedIncreaseInterval = speedIncreaseInterval;
     }
-    
+
     public void Initialize(double width, double height) {
-        
     }
 
     public void LoadContent(Game game, ContentManager content) {
@@ -41,7 +41,7 @@ public class Interim : IGameMode {
             Keyboard.GetState().IsKeyDown(Keys.P)) {
             _game1.ReturnToState(_menu);
         }
-        
+
         if (Input.GetButtonDown(1, Input.ArcadeButtons.A1) || Input.GetButtonDown(2, Input.ArcadeButtons.A1) ||
             Keyboard.GetState().IsKeyDown(Keys.Enter)) {
             _game1.AddState(GetSnek());
@@ -50,7 +50,7 @@ public class Interim : IGameMode {
 
     public void Draw(SpriteBatch spriteBatch, GraphicsDeviceManager graphics) {
         List<string> options = new() {
-            "Press purple button", "to return to menu", "", "Press red button", "to quick reset"
+            "Press purple button", "to return to menu", "", "Press red button", "to quick reset",
         };
 
         for (int i = 0; i < options.Count; i++) {
