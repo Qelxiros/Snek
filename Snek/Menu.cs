@@ -132,7 +132,7 @@ public class Menu : IGameMode {
         List<string> options = new() {
             "Settings", "Concurrent Foods", $"<{_concurrentFoods}>", "Speed", $"<{1 / _speed:P0}>",
             "Speed Increase", $"<x{1 / _speedMultiplier:F2}>", "Speed Increase Interval", $"<{_speedIncreaseInterval}>",
-            "Play", "High Scores", "", "", "", "", "Instructions", "Yellow button to go back", "Joystick left/right",
+            "Play", "High Scores", "", "", "", "", "Instructions", "Purple button to go back", "Joystick left/right",
             "or green/white buttons", "to change values", "Joystick up/down to move", "Red button to select",
             "Joystick to change", "direction in game",
         };
