@@ -60,14 +60,6 @@ public class Menu : IGameMode {
 
         if (Input.GetButtonDown(1, Input.ArcadeButtons.A1) || Input.GetButtonDown(2, Input.ArcadeButtons.A1) ||
             Keyboard.GetState().IsKeyDown(Keys.Enter)) {
-            // IGameMode state = _hoveredMenuItem switch {
-            //     4 => new Snek(this, _game1, _concurrentFoods, _speed, _speedMultiplier, _speedIncreaseInterval),
-            //     5 => new HighScores(this, _game1, _font, _fontSize),
-            //     _ => null
-            // };
-            // if (state != null) {
-            //     _game1.AddState(state);
-            // }
             switch (_hoveredMenuItem) {
             case 4:
                 Interim interim = new(_game1, this, _concurrentFoods, _speed, _speedMultiplier, _speedIncreaseInterval);

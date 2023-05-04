@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Devcade;
 using Microsoft.Xna.Framework;
@@ -8,14 +9,18 @@ using Microsoft.Xna.Framework.Input;
 namespace Snek;
 
 public class Interim : IGameMode {
+    private readonly int _concurrentFoods;
     private readonly Game1 _game1;
     private readonly Menu _menu;
-    private readonly int _concurrentFoods;
-    private SpriteFont _font;
-    private Vector2 _fontSize;
     private readonly double _speed;
     private readonly int _speedIncreaseInterval;
     private readonly double _speedMultiplier;
+    private SpriteFont _font;
+    private Vector2 _fontSize;
+    private SpriteFont _scoreFont;
+    private Vector2 _scoreFontSize;
+
+    public long Score { get; set; }
 
     public Interim(Game1 game1, Menu menu, int concurrentFoods, double speed, double speedMultiplier,
         int speedIncreaseInterval) {
@@ -28,11 +33,15 @@ public class Interim : IGameMode {
     }
 
     public void Initialize(double width, double height) {
+        Score = 0;
+        Console.WriteLine("here");
     }
 
     public void LoadContent(Game game, ContentManager content) {
         _font = content.Load<SpriteFont>("menu");
         _fontSize = _font.MeasureString("0");
+        _scoreFont = content.Load<SpriteFont>("score");
+        _scoreFontSize = _scoreFont.MeasureString("0"); // the font is monospace so this works
     }
 
     public void Update() {
@@ -59,6 +68,13 @@ public class Interim : IGameMode {
                 new Vector2((graphics.PreferredBackBufferWidth - options[i].Length * _fontSize.X) / 2,
                     _fontSize.Y * 2 * i), color);
         }
+        
+        string scoreString = Score.ToString();
+
+        spriteBatch.DrawString(_scoreFont, scoreString,
+            new Vector2((graphics.PreferredBackBufferWidth - _scoreFontSize.X * scoreString.Length) / 2,
+                (graphics.PreferredBackBufferHeight - _scoreFontSize.Y) / 2),
+            Color.DarkSlateGray);
     }
 
     public Snek GetSnek() {

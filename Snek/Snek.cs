@@ -14,7 +14,7 @@ namespace Snek;
 
 public class Snek : IGameMode {
     private readonly int _concurrentFoods;
-    private readonly IGameMode _fallback;
+    private readonly Interim _fallback;
     private readonly Game1 _game1;
     private readonly Random _rng = new();
     private readonly int _speedIncreaseInterval;
@@ -45,7 +45,7 @@ public class Snek : IGameMode {
     private HashSet<Tuple<int, int>> _unusedCells;
     private Texture2D _upCell;
 
-    public Snek(IGameMode fallback, Game1 game1, int concurrentFoods, double speed, double speedMultiplier,
+    public Snek(Interim fallback, Game1 game1, int concurrentFoods, double speed, double speedMultiplier,
         int speedIncreaseInterval) {
         _fallback = fallback;
         _game1 = game1;
@@ -276,6 +276,8 @@ public class Snek : IGameMode {
             CreateFood(foodIndex, _unusedCells.Count > 0);
 
             _score++;
+            _fallback.Score = _score;
+            Console.WriteLine("{0},{1}", _score, _fallback.Score);
             if (_score % _speedIncreaseInterval == 0) {
                 _speed = _speedMultiplier * _speed;
             }
