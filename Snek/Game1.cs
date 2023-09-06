@@ -1,4 +1,5 @@
-﻿using Devcade;
+﻿using System;
+using Devcade;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -26,6 +27,8 @@ public class Game1 : Game {
         Content.RootDirectory = "Content";
         IsMouseVisible = false;
         _activeState = new Landing(this);
+         const int framesPerSecond = 75;
+         TargetElapsedTime = TimeSpan.FromSeconds(1d / framesPerSecond);
     }
 
     /// <summary>

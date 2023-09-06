@@ -34,7 +34,6 @@ public class Interim : IGameMode {
 
     public void Initialize(double width, double height) {
         Score = 0;
-        Console.WriteLine("here");
     }
 
     public void LoadContent(Game game, ContentManager content) {

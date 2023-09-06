@@ -234,7 +234,7 @@ public class Snek : IGameMode {
 
             break;
         default:
-            Console.WriteLine("everything is broken\nthe apocalypse is upon us\ngodspeed");
+            Console.Error.WriteLine("everything is broken\nthe apocalypse is upon us\ngodspeed");
             death = true;
             break;
         }
@@ -277,7 +277,6 @@ public class Snek : IGameMode {
 
             _score++;
             _fallback.Score = _score;
-            Console.WriteLine("{0},{1}", _score, _fallback.Score);
             if (_score % _speedIncreaseInterval == 0) {
                 _speed = _speedMultiplier * _speed;
             }
