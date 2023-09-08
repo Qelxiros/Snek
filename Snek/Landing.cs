@@ -11,9 +11,11 @@ public class Landing : IGameMode {
     private readonly Game1 _game1;
     private SpriteFont _font;
     private Vector2 _fontSize;
+    private int _framesPerSecond;
 
-    public Landing(Game1 game1) {
+    public Landing(Game1 game1, int framesPerSecond) {
         _game1 = game1;
+        _framesPerSecond = framesPerSecond;
     }
 
     public void Initialize(double width, double height) {
@@ -28,7 +30,7 @@ public class Landing : IGameMode {
         if (Input.GetButtonDown(2, Input.ArcadeButtons.B1) || Input.GetButtonDown(2, Input.ArcadeButtons.B2) ||
             Input.GetButtonDown(2, Input.ArcadeButtons.B3) || Input.GetButtonDown(2, Input.ArcadeButtons.B4) ||
             Keyboard.GetState().IsKeyDown(Keys.P)) {
-            _game1.AddState(new Menu(this, _game1));
+            _game1.AddState(new Menu(this, _game1, _framesPerSecond));
         }
     }
 

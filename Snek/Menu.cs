@@ -19,10 +19,12 @@ public class Menu : IGameMode {
     private double _speed;
     private int _speedIncreaseInterval;
     private double _speedMultiplier;
+    private int _framesPerSecond;
 
-    public Menu(Landing landing, Game1 game1) {
+    public Menu(Landing landing, Game1 game1, int framesPerSecond) {
         _landing = landing;
         _game1 = game1;
+        _framesPerSecond = framesPerSecond;
     }
 
     public void Initialize(double width, double height) {
@@ -62,7 +64,7 @@ public class Menu : IGameMode {
             Keyboard.GetState().IsKeyDown(Keys.Enter)) {
             switch (_hoveredMenuItem) {
             case 4:
-                Interim interim = new(_game1, this, _concurrentFoods, _speed, _speedMultiplier, _speedIncreaseInterval);
+                Interim interim = new(_game1, this, _concurrentFoods, _speed, _speedMultiplier, _speedIncreaseInterval, _framesPerSecond);
                 _game1.AddState(interim);
                 _game1.AddState(interim.GetSnek());
                 break;
@@ -105,7 +107,7 @@ public class Menu : IGameMode {
                 _concurrentFoods++;
                 break;
             case 1:
-                _speed = Math.Max(_speed - 0.05, 0.05);
+                _speed = Math.Max(_speed - 1d / _framesPerSecond, 1d / _framesPerSecond);
                 break;
             case 2:
                 _speedMultiplier = Math.Max(_speedMultiplier - 0.05, 0.05);

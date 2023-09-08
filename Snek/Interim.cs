@@ -19,17 +19,19 @@ public class Interim : IGameMode {
     private Vector2 _fontSize;
     private SpriteFont _scoreFont;
     private Vector2 _scoreFontSize;
+    private int _framesPerSecond;
 
     public long Score { get; set; }
 
     public Interim(Game1 game1, Menu menu, int concurrentFoods, double speed, double speedMultiplier,
-        int speedIncreaseInterval) {
+        int speedIncreaseInterval, int framesPerSecond) {
         _game1 = game1;
         _menu = menu;
         _concurrentFoods = concurrentFoods;
         _speed = speed;
         _speedMultiplier = speedMultiplier;
         _speedIncreaseInterval = speedIncreaseInterval;
+        _framesPerSecond = framesPerSecond;
     }
 
     public void Initialize(double width, double height) {
@@ -77,6 +79,6 @@ public class Interim : IGameMode {
     }
 
     public Snek GetSnek() {
-        return new Snek(this, _game1, _concurrentFoods, _speed, _speedMultiplier, _speedIncreaseInterval);
+        return new Snek(this, _game1, _concurrentFoods, _speed, _speedMultiplier, _speedIncreaseInterval, _framesPerSecond);
     }
 }

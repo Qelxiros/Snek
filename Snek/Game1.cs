@@ -26,9 +26,9 @@ public class Game1 : Game {
         _graphics = new GraphicsDeviceManager(this);
         Content.RootDirectory = "Content";
         IsMouseVisible = false;
-        _activeState = new Landing(this);
-         const int framesPerSecond = 75;
-         TargetElapsedTime = TimeSpan.FromSeconds(1d / framesPerSecond);
+        const int framesPerSecond = 75;
+        TargetElapsedTime = TimeSpan.FromSeconds(1d / framesPerSecond);
+        _activeState = new Landing(this, framesPerSecond);
     }
 
     /// <summary>

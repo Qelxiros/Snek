@@ -44,15 +44,17 @@ public class Snek : IGameMode {
     private double _speed;
     private HashSet<Tuple<int, int>> _unusedCells;
     private Texture2D _upCell;
+    private int _framesPerSecond;
 
     public Snek(Interim fallback, Game1 game1, int concurrentFoods, double speed, double speedMultiplier,
-        int speedIncreaseInterval) {
+        int speedIncreaseInterval, int framesPerSecond) {
         _fallback = fallback;
         _game1 = game1;
         _concurrentFoods = concurrentFoods;
         _speed = speed;
         _speedMultiplier = speedMultiplier;
         _speedIncreaseInterval = speedIncreaseInterval;
+        _framesPerSecond = framesPerSecond;
     }
 
     public void Initialize(double width, double height) {
@@ -189,7 +191,7 @@ public class Snek : IGameMode {
             _headingChangedSinceLastMove = true;
         }
 
-        if (_framesSinceLastMove < 15 * _speed) {
+        if (_framesSinceLastMove < _framesPerSecond * _speed) {
             _framesSinceLastMove++;
             return;
         }
