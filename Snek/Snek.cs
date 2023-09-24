@@ -255,6 +255,7 @@ public class Snek : IGameMode {
                 Thread.Sleep(_eatShit.Duration.Milliseconds);
             }
 
+            _fallback.Score = _score;
             _game1.ReturnToState(_fallback);
         }
 

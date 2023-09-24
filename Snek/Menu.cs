@@ -28,7 +28,7 @@ public class Menu : IGameMode {
     }
 
     public void Initialize(double width, double height) {
-        _speed = 1;
+        _speed = 0.2;
         _speedMultiplier = 0.95;
         _speedIncreaseInterval = 10;
         _concurrentFoods = 1;

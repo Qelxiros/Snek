@@ -1,3 +1,3 @@
-Snake Clone in Monogame
+Snake clone in Monogame
 
 be amazed
