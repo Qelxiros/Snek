@@ -20,6 +20,7 @@ public class Menu : IGameMode {
     private int _speedIncreaseInterval;
     private double _speedMultiplier;
     private int _framesPerSecond;
+    private const int ADJUST_SPEED_DISPLAY = 5;
 
     public Menu(Landing landing, Game1 game1, int framesPerSecond) {
         _landing = landing;
@@ -28,7 +29,7 @@ public class Menu : IGameMode {
     }
 
     public void Initialize(double width, double height) {
-        _speed = 0.2;
+        _speed = 1d/ADJUST_SPEED_DISPLAY;
         _speedMultiplier = 0.95;
         _speedIncreaseInterval = 10;
         _concurrentFoods = 1;
@@ -124,7 +125,7 @@ public class Menu : IGameMode {
 
     public void Draw(SpriteBatch spriteBatch, GraphicsDeviceManager graphics) {
         List<string> options = new() {
-            "Settings", "Concurrent Foods", $"<{_concurrentFoods}>", "Speed", $"<{1 / _speed:P0}>",
+            "Settings", "Concurrent Foods", $"<{_concurrentFoods}>", "Speed", $"<{(1 / _speed) / ADJUST_SPEED_DISPLAY:P0}>",
             "Speed Increase", $"<x{1 / _speedMultiplier:F2}>", "Speed Increase Interval", $"<{_speedIncreaseInterval}>",
             "Play", "High Scores", "", "", "", "", "Instructions", "Purple button to go back", "Joystick left/right",
             "or green/white buttons", "to change values", "Joystick up/down to move", "Red button to select",
