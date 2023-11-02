@@ -1,7 +1,8 @@
 namespace Snek;
 
-public enum State {
+public enum State
+{
     Game,
     Menu,
-    HighScores,
+    HighScores
 }

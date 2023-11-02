@@ -6,14 +6,16 @@ using Microsoft.Xna.Framework.Input;
 
 namespace Snek;
 
-public enum Heading {
+public enum Heading
+{
     Up,
     Down,
     Left,
-    Right,
+    Right
 }
 
-public class Game1 : Game {
+public class Game1 : Game
+{
     private readonly GraphicsDeviceManager _graphics;
     private IGameMode _activeState;
     private SpriteBatch _spriteBatch;
@@ -22,7 +24,8 @@ public class Game1 : Game {
     /// <summary>
     ///     Game constructor
     /// </summary>
-    public Game1() {
+    public Game1()
+    {
         _graphics = new GraphicsDeviceManager(this);
         Content.RootDirectory = "Content";
         IsMouseVisible = false;
@@ -34,7 +37,8 @@ public class Game1 : Game {
     /// <summary>
     ///     Does any setup prior to the first frame that doesn't need loaded content.
     /// </summary>
-    protected override void Initialize() {
+    protected override void Initialize()
+    {
         Input.Initialize(); // Sets up the input library
 
         #region
@@ -60,7 +64,8 @@ public class Game1 : Game {
     /// <summary>
     ///     Does any setup prior to the first frame that needs loaded content.
     /// </summary>
-    protected override void LoadContent() {
+    protected override void LoadContent()
+    {
         _spriteBatch = new SpriteBatch(GraphicsDevice);
 
         _activeState.LoadContent(this, Content);
@@ -70,7 +75,8 @@ public class Game1 : Game {
     ///     Your main update loop. This runs once every frame, over and over.
     /// </summary>
     /// <param name="gameTime">This is the gameTime object you can use to get the time since last frame.</param>
-    protected override void Update(GameTime gameTime) {
+    protected override void Update(GameTime gameTime)
+    {
         Input.Update(); // Updates the state of the input library
 
         // Exit when both menu buttons are pressed (or escape for keyboard debuging)
@@ -78,9 +84,8 @@ public class Game1 : Game {
         // buttons at once for gracefull exit.
         if (Keyboard.GetState().IsKeyDown(Keys.Escape) ||
             (Input.GetButton(1, Input.ArcadeButtons.Menu) &&
-             Input.GetButton(2, Input.ArcadeButtons.Menu))) {
+             Input.GetButton(2, Input.ArcadeButtons.Menu)))
             Exit();
-        }
 
         _activeState.Update();
 
@@ -91,7 +96,8 @@ public class Game1 : Game {
     ///     Your main draw loop. This runs once every frame, over and over.
     /// </summary>
     /// <param name="gameTime">This is the gameTime object you can use to get the time since last frame.</param>
-    protected override void Draw(GameTime gameTime) {
+    protected override void Draw(GameTime gameTime)
+    {
         GraphicsDevice.Clear(Color.Black);
 
         _spriteBatch.Begin();
@@ -101,13 +107,15 @@ public class Game1 : Game {
         base.Draw(gameTime);
     }
 
-    public void AddState(IGameMode state) {
+    public void AddState(IGameMode state)
+    {
         state.Initialize(_windowSize.Width, _windowSize.Height);
         state.LoadContent(this, Content);
         _activeState = state;
     }
 
-    public void ReturnToState(IGameMode fallback) {
+    public void ReturnToState(IGameMode fallback)
+    {
         _activeState = fallback;
     }
 

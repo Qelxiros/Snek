@@ -4,7 +4,8 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace Snek;
 
-public interface IGameMode {
+public interface IGameMode
+{
     /**
      * All non-content related initialization should be done here. Called immediately on startup.
      * This method should include the creation of all game objects.
