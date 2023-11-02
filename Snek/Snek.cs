@@ -166,26 +166,30 @@ public class Snek : IGameMode {
 
     public void Update() {
         if ((Keyboard.GetState().IsKeyDown(Keys.Up) || Input.GetButton(1, Input.ArcadeButtons.StickUp) ||
-             Input.GetButton(2, Input.ArcadeButtons.StickUp)) &&
+             Input.GetButton(2, Input.ArcadeButtons.StickUp) || Input.GetButton(1, Input.ArcadeButtons.B3) ||
+                                                                         Input.GetButton(2, Input.ArcadeButtons.B3)) &&
             _heading is Heading.Left or Heading.Right &&
             !_headingChangedSinceLastMove) {
             _heading = Heading.Up;
             _headingChangedSinceLastMove = true;
         } else if ((Keyboard.GetState().IsKeyDown(Keys.Down) ||
                     Input.GetButton(1, Input.ArcadeButtons.StickDown) ||
-                    Input.GetButton(2, Input.ArcadeButtons.StickDown)) &&
+                    Input.GetButton(2, Input.ArcadeButtons.StickDown) || Input.GetButton(1, Input.ArcadeButtons.B2) ||
+                                                                                                  Input.GetButton(2, Input.ArcadeButtons.B2)) &&
                    _heading is Heading.Left or Heading.Right && !_headingChangedSinceLastMove) {
             _heading = Heading.Down;
             _headingChangedSinceLastMove = true;
         } else if ((Keyboard.GetState().IsKeyDown(Keys.Left) ||
                     Input.GetButton(1, Input.ArcadeButtons.StickLeft) ||
-                    Input.GetButton(2, Input.ArcadeButtons.StickLeft)) &&
+                    Input.GetButton(2, Input.ArcadeButtons.StickLeft) || Input.GetButton(1, Input.ArcadeButtons.B1) ||
+                                                                                  Input.GetButton(2, Input.ArcadeButtons.B1)) &&
                    _heading is Heading.Up or Heading.Down && !_headingChangedSinceLastMove) {
             _heading = Heading.Left;
             _headingChangedSinceLastMove = true;
         } else if ((Keyboard.GetState().IsKeyDown(Keys.Right) ||
                     Input.GetButton(1, Input.ArcadeButtons.StickRight) ||
-                    Input.GetButton(2, Input.ArcadeButtons.StickRight)) &&
+                    Input.GetButton(2, Input.ArcadeButtons.StickRight) || Input.GetButton(1, Input.ArcadeButtons.B4) ||
+                                                                                                       Input.GetButton(2, Input.ArcadeButtons.B4)) &&
                    _heading is Heading.Up or Heading.Down && !_headingChangedSinceLastMove) {
             _heading = Heading.Right;
             _headingChangedSinceLastMove = true;
